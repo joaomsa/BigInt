@@ -24,6 +24,7 @@ int num_cmp(list_t *numA, list_t *numB)
 {
     int i, retVal;
     node_t *auxA, *auxB;
+
     /* Compare signs. */
     if (numA->head->item == 1 && numB->head->item == 1){
         numA->head->item = 0;
@@ -61,15 +62,11 @@ int num_cmp(list_t *numA, list_t *numB)
 
 void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int maxdigits, mindigits, i, sum;
+    int i, sum;
     node_t *auxAns, *auxA, *auxB;
 
     /* Ensure A is always longer than B */
-    if (numA->len >= numB->len){
-        maxdigits = numA->len;
-        mindigits = numB->len;
-    }
-    else {
+    if (numA->len < numB->len){
         num_add_nat(numAns, numB, numA);
         return;
     }
@@ -78,8 +75,8 @@ void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
     auxAns = numAns->head->next;
     auxA = numA->head->next;
     auxB = numB->head->next;
-    for (i = 0; i < maxdigits; i++){
-        if (i < mindigits){
+    for (i = 0; i < numA->len; i++){
+        if (i < numB->len){
             sum = auxAns->item + auxA->item + auxB->item;
             auxA = auxA->next;
             auxB = auxB->next;
@@ -180,9 +177,55 @@ void num_add(list_t *numAns, list_t *numA, list_t *numB)
 void num_sub(list_t *numAns, list_t *numA, list_t *numB)
 {
     int signB;
+
     signB = numB->head->item;
     /* Toggle sign */
     numB->head->item ^= 1;
     num_add(numAns, numA, numB);
     numB->head->item = signB;
 }
+
+/*
+void num_mul(list_t *numAns, list_t *numA, list_t *numB)
+{
+    int i, j, product;
+    div_t carry;
+    list_t *numTmp, *numAcc, *num0;
+    node_t *auxA, *auxB, *auxTmp;
+
+    if (numA->len < numB->len){
+        num_mul(numAns, numB, numA);
+        return;
+    }
+
+    numTmp = list_init();
+    numAcc = list_init();
+    num0 = list_init();
+    list_append(num0, 0);
+
+    auxB = numB->head->next;
+    for (i = 0; i < numB->len; i++){
+        list_append(numTmp, 0);
+        auxA = numA->head->next;
+        auxTmp = numTmp->head->next;
+        for (j = 0; j < numA->len; j++){
+            product = auxA->item * auxB->item + auxTmp->item;
+            carry = div(product, 10);
+            auxTmp->item = carry.rem;
+            list_append(numTmp, carry.quot);
+            auxA = auxA->next;
+            auxTmp = auxTmp->next;
+        }
+        for (j = 0; j < i; j++)
+            list_insert(numTmp, 0, 0);
+        num_add(numAcc, numAns, num0);
+        num_add(numAns, numAcc, numTmp);
+        auxB = auxB->next;
+        list_empty(numTmp);
+        list_empty(numAcc);
+    }
+    list_free(numTmp);
+    list_free(numAcc);
+    list_free(num0);
+}
+*/
