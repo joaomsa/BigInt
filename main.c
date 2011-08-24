@@ -38,7 +38,7 @@ int main()
             printf("-");
         list_printrev(*numAns, "");
         printf("\n");
-        printf("%i", num_cmp(numN, numM));
+        printf("cmp:%i\n", num_cmp(numN, numM));
     }
     return 0;
 }

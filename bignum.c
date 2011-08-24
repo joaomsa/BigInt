@@ -99,13 +99,47 @@ void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
         auxAns->item = sum;
         auxAns = auxAns->next;
     }
-    if (numAns->tail->item == 0)
+    while (numAns->tail->item == 0)
+        free(list_pop(numAns, numAns->len - 1));
+}
+
+void num_sub_nat(list_t *numAns, list_t *numA, list_t *numB)
+{
+    int i, dif;
+    node_t *auxAns, *auxA, *auxB;
+
+    list_append(numAns, 0);
+    auxAns = numAns->head->next;
+    auxA = numA->head->next;
+    auxB = numB->head->next;
+    for (i = 0; i < numA->len; i++){
+        if (i < numB->len){
+            dif = auxAns->item + auxA->item - auxB->item;
+            auxA = auxA->next;
+            auxB = auxB->next;
+        }
+        else {
+            dif = auxAns->item + auxA->item;
+            auxA = auxA->next;
+        }
+
+        if (dif < 0){
+            dif += 10;
+            list_append(numAns, -1);
+        }
+        else
+            list_append(numAns, 0);
+
+        auxAns->item = dif;
+        auxAns = auxAns->next;
+    }
+    while (numAns->tail->item == 0)
         free(list_pop(numAns, numAns->len - 1));
 }
 
 void num_add(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int signCount = 0;
+    int signCount = 0, signA, signB;
 
     signCount += numA->head->item;
     signCount += numB->head->item;
@@ -113,7 +147,24 @@ void num_add(list_t *numAns, list_t *numA, list_t *numB)
         case 0: 
             num_add_nat(numAns, numA, numB);
             return;
-        case 1: puts("mixed"); break;
+        case 1: 
+            signA = numA->head->item;
+            signB = numB->head->item;
+            numA->head->item = 0;
+            numB->head->item = 0;
+
+            if (num_cmp(numA, numB) >= 0){
+                num_sub_nat(numAns, numA, numB);
+                numAns->head->item = signA;
+            }
+            else {
+                num_sub_nat(numAns, numB, numA);
+                numAns->head->item = signB;
+            }
+
+            numA->head->item = signA;
+            numB->head->item = signB;
+            return;
         case 2: 
             num_add_nat(numAns, numA, numB);
             numAns->head->item = 1;
