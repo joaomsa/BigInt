@@ -24,7 +24,7 @@ int main()
 
         num_read(numN);
         num_read(numM);
-        num_add(numAns, numN, numM);
+        num_sub(numAns, numN, numM);
 
         if (numN->head->item == 1)
             printf("-");
