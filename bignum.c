@@ -62,7 +62,7 @@ int num_cmp(list_t *numA, list_t *numB)
 
 void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int i, sum;
+    int i, sum, carry, lenNumAns, lenNumA, lenNumB;
     node_t *auxAns, *auxA, *auxB;
 
     /* Ensure A is always longer than B */
@@ -71,34 +71,43 @@ void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
         return;
     }
 
-    list_append(numAns, 0);
+    carry = 0;
+    lenNumA = numA->len;
+    lenNumB = numB->len;
+
+    if (numAns->head->next == NULL)
+        list_append(numAns, 0);
     auxAns = numAns->head->next;
     auxA = numA->head->next;
     auxB = numB->head->next;
-    for (i = 0; i < numA->len; i++){
-        if (i < numB->len){
-            sum = auxAns->item + auxA->item + auxB->item;
+
+    for (i = 0; i < lenNumA; i++){
+        if (i < lenNumB){
+            sum = carry + auxA->item + auxB->item;
             auxA = auxA->next;
             auxB = auxB->next;
         }
         else {
-            sum = auxAns->item + auxA->item;
+            sum = carry + auxA->item;
             auxA = auxA->next;
         }
 
         /* Carry one. */
         if (sum >= 10){
             sum -= 10;
-            list_append(numAns, 1);
+            carry = 1;
         }
         else
-            list_append(numAns, 0);
-
+            carry = 0;
+        if (auxAns->next == NULL)
+            list_append(numAns, carry);
         auxAns->item = sum;
         auxAns = auxAns->next;
     }
-    /* Remove trailing zeros. */
-    while (numAns->tail->item == 0 && numAns->len > 1)
+
+    /* Remove trailing numbers. */
+    lenNumAns = i + carry;
+    while(numAns->len > lenNumAns)
         free(list_pop(numAns, numAns->len - 1));
 }
 

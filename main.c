@@ -8,7 +8,9 @@
 #define LIST_H
 #include "list.h"
 #endif
-/* TODO */
+/* TODO 
+ * Fix add natural lenght detection like mul
+ * */
 int main()
 {
     list_t *numN, *numM, *numAns;
@@ -23,22 +25,31 @@ int main()
         list_empty(numAns);
 
         num_read(numN);
+        /*
         num_read(numM);
-        num_sub(numAns, numN, numM);
+        num_add(numAns, numN, numM);
+        */
+        num_add(numN, numN, numN);
 
         if (numN->head->item == 1)
             printf("-");
         list_printrev(*numN, "");
         printf("\n");
+        /*
         if (numM->head->item == 1)
             printf("-");
         list_printrev(*numM, "");
         printf("\n");
+        */
+        /*
         if (numAns->head->item == 1)
             printf("-");
         list_printrev(*numAns, "");
         printf("\n");
+        */
+        /*
         printf("cmp:%i\n", num_cmp(numN, numM));
+        */
     }
     return 0;
 }
