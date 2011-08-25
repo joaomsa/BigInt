@@ -207,18 +207,25 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB)
         numB->head->item = signB;
 }
 
+/* Long multiplication. */
 void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, j, product;
     div_t carry;
-    list_t *numTmp;
+    list_t *numTmp, *numAcc;
     node_t *auxA, *auxB, *auxTmp;
 
     /* Ensure numA is always larger. */
     if (numA->len < numB->len){
-        num_mul(numAns, numB, numA);
+        num_mul_nat(numAns, numB, numA);
         return;
     }
+    /* In the event one of the factors is also the product make a copy of it so
+     * it doesn't mess up during multiplication. */
+    if (numAns == numA || numAns == numB)
+        numAcc = list_init();
+    else
+        numAcc = numAns;
 
     numTmp = list_init();
     auxB = numB->head->next;
@@ -227,6 +234,8 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
         list_append(numTmp, 0);
         auxA = numA->head->next;
         auxTmp = numTmp->head->next;
+
+        /* Calculate parial product. */
         for (j = 0; j < numA->len; j++){
             product = auxA->item * auxB->item + auxTmp->item;
             carry = div(product, 10);
@@ -236,6 +245,7 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
             auxTmp = auxTmp->next;
         }
 
+        /* Remove trailing zeros. */
         while(numTmp->tail->item == 0 && numTmp->len > 1)
             free(list_pop(numTmp, numTmp->len - 1));
 
@@ -243,11 +253,95 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
         for (j = 0; j < i; j++)
             list_insert(numTmp, 0, 0);
 
-        num_add_nat(numAns, numAns, numTmp);
+        /* Accumulate partial products. */
+        num_add_nat(numAcc, numAcc, numTmp);
         auxB = auxB->next;
         list_empty(numTmp);
     }
+
+    /* Copy the number back */
+    if (numAns == numA || numAns == numB){
+        list_empty(numAns);
+        list_append(numAns, 0);
+        num_add_nat(numAns, numAns, numAcc);
+        list_free(numAcc);
+    }
+
     list_free(numTmp);
+}
+
+void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
+{
+    list_t *x0, *x1, *xt, 
+           *y0, *y1, *yt, 
+           *z0, *z1, *z2;
+    node_t *aux;
+
+    int i, m = 2;
+    if (numA->len <= m && numB->len <= m)
+        num_mul_nat(numAns, numA, numB);
+    else {
+        aux = numA->head->next;
+        x0 = list_init();
+        x0->len = m;
+        x0->head->next = aux;
+        for (i = 0; i < m; i++){
+            x0->tail = aux;
+            aux = aux->next;
+        }
+        x1 = list_init();
+        x1->len = numA->len - m;
+        x1->head->next = aux;
+        for (i = 0; i < numA->len - m; i++){
+            x1->tail = aux;
+            aux = aux->next;
+        }
+
+        aux = numB->head->next;
+        y0 = list_init();
+        y0->len = m;
+        y0->head->next = aux;
+        for (i = 0; i < m; i++){
+            y0->tail = aux;
+            aux = aux->next;
+        }
+        y1 = list_init();
+        y1->len = numB->len - m;
+        y1->head->next = aux;
+        for (i = 0; i < numB->len - m; i++){
+            y1->tail = aux;
+            aux = aux->next;
+        }
+        xt = list_init();
+        yt = list_init();
+        z0 = list_init();
+        z1 = list_init();
+        z2 = list_init();
+
+        num_mul_kar(z0, x0, y0);
+        num_mul_kar(z2, x1, y1);
+
+        num_add_nat(xt, x1, x0);
+        num_add_nat(yt, y1, y0);
+        num_mul_kar(z1, xt, yt);
+        num_sub_nat(z1, z1, z2);
+        num_sub_nat(z1, z1, z0);
+
+        for (i = 0; i < m; i++)
+            list_insert(z1, 0, 0);
+        for (i = 0; i < 2 * m; i++)
+            list_insert(z2, 0, 0);
+
+        num_add_nat(numAns, z0, z1);
+        num_add_nat(numAns, numAns, z2);
+
+        /*
+         * fix mem leaks 
+        list_free(x0); list_free(x1); list_free(xt);
+        list_free(y0); list_free(y1); list_free(yt);
+        list_free(z0); list_free(z1); list_free(z2);
+        */
+    }
 }
 
 void num_mul(list_t *numAns, list_t *numA, list_t *numB)

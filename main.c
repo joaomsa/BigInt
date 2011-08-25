@@ -9,7 +9,7 @@
 #include "list.h"
 #endif
 /* TODO 
- * Fix add natural lenght detection like mul
+ * Fix list pop to be faster at the end of lists
  * */
 int main()
 {
@@ -21,7 +21,14 @@ int main()
     while (1){
         num_read(numN);
         num_read(numM);
-        num_mul(numAns, numN, numM);
+        /*
+           num_mul(numN, numN, numM);
+           */
+        num_mul_kar(numAns, numN, numM);
+
+        if (numN->len == 1 && numN->tail->item == 0 && 
+                numM->len == 1 && numM->tail->item == 0)
+            break;
 
         /*
            if (numN->head->item == 1)
@@ -33,10 +40,6 @@ int main()
            list_printrev(*numM, "");
            printf("\n");
            */
-
-        if (numN->len == 1 && numN->tail->item == 0 && 
-                numM->len == 1 && numM->tail->item == 0)
-            break;
 
         if (numAns->head->item == 1)
             printf("-");
