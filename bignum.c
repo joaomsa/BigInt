@@ -207,25 +207,22 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB)
         numB->head->item = signB;
 }
 
-/*
-void num_mul(list_t *numAns, list_t *numA, list_t *numB)
+void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, j, product;
     div_t carry;
-    list_t *numTmp, *numAcc, *num0;
+    list_t *numTmp;
     node_t *auxA, *auxB, *auxTmp;
 
+    /* Ensure numA is always larger. */
     if (numA->len < numB->len){
         num_mul(numAns, numB, numA);
         return;
     }
 
     numTmp = list_init();
-    numAcc = list_init();
-    num0 = list_init();
-    list_append(num0, 0);
-
     auxB = numB->head->next;
+
     for (i = 0; i < numB->len; i++){
         list_append(numTmp, 0);
         auxA = numA->head->next;
@@ -238,16 +235,36 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
             auxA = auxA->next;
             auxTmp = auxTmp->next;
         }
+
+        while(numTmp->tail->item == 0 && numTmp->len > 1)
+            free(list_pop(numTmp, numTmp->len - 1));
+
+        /* Add zeros to the right. */
         for (j = 0; j < i; j++)
             list_insert(numTmp, 0, 0);
-        num_add(numAcc, numAns, num0);
-        num_add(numAns, numAcc, numTmp);
+
+        num_add_nat(numAns, numAns, numTmp);
         auxB = auxB->next;
         list_empty(numTmp);
-        list_empty(numAcc);
     }
     list_free(numTmp);
-    list_free(numAcc);
-    list_free(num0);
 }
-*/
+
+void num_mul(list_t *numAns, list_t *numA, list_t *numB)
+{
+    int signCount;
+
+    num_mul_nat(numAns, numA, numB);
+
+    signCount = 0;
+    signCount += numA->head->item;
+    signCount += numB->head->item;
+    switch (signCount) {
+        case 1: 
+            numAns->head->item = 1;
+            return;
+        default:
+            numAns->head->item = 0;
+            return;
+    }
+}
