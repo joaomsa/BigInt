@@ -254,11 +254,12 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
 {
     int signCount;
 
-    num_mul_nat(numAns, numA, numB);
-
     signCount = 0;
     signCount += numA->head->item;
     signCount += numB->head->item;
+
+    num_mul_nat(numAns, numA, numB);
+
     switch (signCount) {
         case 1: 
             numAns->head->item = 1;

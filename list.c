@@ -44,8 +44,8 @@ void list_free(list_t *list)
 {
     list_empty(list);
     free(list->head);
-    list->head = NULL;
-    list->tail = NULL;
+    free(list);
+    list = NULL;
 }
 
 int list_insert(list_t *list, int pos, const item_t item)

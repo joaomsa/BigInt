@@ -47,5 +47,8 @@ int main()
         list_empty(numM);
         list_empty(numAns);
     }
+    list_free(numN);
+    list_free(numM);
+    list_free(numAns);
     return 0;
 }
