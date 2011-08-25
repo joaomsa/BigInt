@@ -93,7 +93,7 @@ void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
         }
 
         /* Carry one. */
-        if (sum >= 10){
+        if (sum > 9){
             sum -= 10;
             carry = 1;
         }
@@ -113,37 +113,47 @@ void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
 
 void num_sub_nat(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int i, dif;
+    int i, dif, borrow, lenNumAns, lenNumA, lenNumB;
     node_t *auxAns, *auxA, *auxB;
 
-    list_append(numAns, 0);
+    borrow = 0;
+    lenNumA = numA->len;
+    lenNumB = numB->len;
+
+    if (numAns->head->next == NULL)
+        list_append(numAns, 0);
     auxAns = numAns->head->next;
     auxA = numA->head->next;
     auxB = numB->head->next;
-    for (i = 0; i < numA->len; i++){
-        if (i < numB->len){
-            dif = auxAns->item + auxA->item - auxB->item;
+
+    for (i = 0; i < lenNumA; i++){
+        if (i < lenNumB){
+            dif = borrow + auxA->item - auxB->item;
             auxA = auxA->next;
             auxB = auxB->next;
         }
         else {
-            dif = auxAns->item + auxA->item;
+            dif = borrow + auxA->item;
             auxA = auxA->next;
         }
 
         /* Borrow one. */
         if (dif < 0){
             dif += 10;
-            list_append(numAns, -1);
+            borrow = -1;
         }
         else
-            list_append(numAns, 0);
-
+            borrow = 0;
+        if (auxAns->next == NULL)
+            list_append(numAns, borrow);
         auxAns->item = dif;
         auxAns = auxAns->next;
     }
     /* Remove trailing zeros. */
-    while (numAns->tail->item == 0 && numAns->len > 1)
+    lenNumAns = i;
+    while(numAns->len > lenNumAns)
+        free(list_pop(numAns, numAns->len - 1));
+    while(numAns->tail->item == 0 && numAns->len > 1)
         free(list_pop(numAns, numAns->len - 1));
 }
 
@@ -172,8 +182,10 @@ void num_add(list_t *numAns, list_t *numA, list_t *numB)
                 numAns->head->item = signB;
             }
 
-            numA->head->item = signA;
-            numB->head->item = signB;
+            if (numAns != numA)
+                numA->head->item = signA;
+            if (numAns != numB)
+                numB->head->item = signB;
             return;
         case 2: 
             num_add_nat(numAns, numA, numB);
@@ -191,7 +203,8 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB)
     /* Toggle sign */
     numB->head->item ^= 1;
     num_add(numAns, numA, numB);
-    numB->head->item = signB;
+    if (numAns != numB)
+        numB->head->item = signB;
 }
 
 /*
