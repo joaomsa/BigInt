@@ -18,33 +18,34 @@ int main()
     numM = list_init();
     numAns = list_init();
 
-    while (!((numN->len == 1 && numN->tail->item == 0) &&
-                (numM->len == 1 && numM->tail->item == 0))){
-        list_empty(numN);
-        list_empty(numM);
-        list_empty(numAns);
-
+    while (1){
         num_read(numN);
         num_read(numM);
-        num_add(numAns, numN, numM);
+        num_mul(numAns, numN, numM);
 
         /*
-        if (numN->head->item == 1)
-            printf("-");
-        list_printrev(*numN, "");
-        printf("\n");
-        if (numM->head->item == 1)
-            printf("-");
-        list_printrev(*numM, "");
-        printf("\n");
-        */
+           if (numN->head->item == 1)
+           printf("-");
+           list_printrev(*numN, "");
+           printf("\n");
+           if (numM->head->item == 1)
+           printf("-");
+           list_printrev(*numM, "");
+           printf("\n");
+           */
+
+        if (numN->len == 1 && numN->tail->item == 0 && 
+                numM->len == 1 && numM->tail->item == 0)
+            break;
+
         if (numAns->head->item == 1)
             printf("-");
         list_printrev(*numAns, "");
         printf("\n");
-        /*
-        printf("cmp:%i\n", num_cmp(numN, numM));
-        */
+
+        list_empty(numN);
+        list_empty(numM);
+        list_empty(numAns);
     }
     return 0;
 }
