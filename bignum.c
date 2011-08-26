@@ -272,51 +272,46 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
 
 void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
 {
+    int i;
     list_t *x0, *x1, *xt, 
            *y0, *y1, *yt, 
            *z0, *z1, *z2;
     node_t *aux;
 
-    int i, m = 2;
-    if (numA->len <= m && numB->len <= m)
+    if (numA->len <= THRESHOLD && numB->len <= THRESHOLD)
         num_mul_nat(numAns, numA, numB);
     else {
+        x0 = list_init(); x1 = list_init(); xt = list_init(); 
+        y0 = list_init(); y1 = list_init(); yt = list_init();
+        z0 = list_init(); z1 = list_init(); z2 = list_init();
+
         aux = numA->head->next;
-        x0 = list_init();
-        x0->len = m;
+        x0->len = THRESHOLD;
         x0->head->next = aux;
-        for (i = 0; i < m; i++){
+        for (i = 0; i < THRESHOLD; i++){
             x0->tail = aux;
             aux = aux->next;
         }
-        x1 = list_init();
-        x1->len = numA->len - m;
+        x1->len = numA->len - THRESHOLD;
         x1->head->next = aux;
-        for (i = 0; i < numA->len - m; i++){
+        for (i = 0; i < numA->len - THRESHOLD; i++){
             x1->tail = aux;
             aux = aux->next;
         }
 
         aux = numB->head->next;
-        y0 = list_init();
-        y0->len = m;
+        y0->len = THRESHOLD;
         y0->head->next = aux;
-        for (i = 0; i < m; i++){
+        for (i = 0; i < THRESHOLD; i++){
             y0->tail = aux;
             aux = aux->next;
         }
-        y1 = list_init();
-        y1->len = numB->len - m;
+        y1->len = numB->len - THRESHOLD;
         y1->head->next = aux;
-        for (i = 0; i < numB->len - m; i++){
+        for (i = 0; i < numB->len - THRESHOLD; i++){
             y1->tail = aux;
             aux = aux->next;
         }
-        xt = list_init();
-        yt = list_init();
-        z0 = list_init();
-        z1 = list_init();
-        z2 = list_init();
 
         num_mul_kar(z0, x0, y0);
         num_mul_kar(z2, x1, y1);
@@ -327,20 +322,21 @@ void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
         num_sub_nat(z1, z1, z2);
         num_sub_nat(z1, z1, z0);
 
-        for (i = 0; i < m; i++)
+        /* Multiply by powers of 10. */
+        for (i = 0; i < THRESHOLD; i++)
             list_insert(z1, 0, 0);
-        for (i = 0; i < 2 * m; i++)
+        for (i = 0; i < 2 * THRESHOLD; i++)
             list_insert(z2, 0, 0);
 
         num_add_nat(numAns, z0, z1);
         num_add_nat(numAns, numAns, z2);
 
-        /*
-         * fix mem leaks 
+        /* Clean up. */
+        x0->len = 0; x1->len = 0;
+        y0->len = 0; y1->len = 0;
         list_free(x0); list_free(x1); list_free(xt);
         list_free(y0); list_free(y1); list_free(yt);
         list_free(z0); list_free(z1); list_free(z2);
-        */
     }
 }
 
