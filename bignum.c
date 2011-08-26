@@ -208,7 +208,7 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB)
 }
 
 /* Long multiplication. */
-void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
+void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, j, product;
     div_t carry;
@@ -217,7 +217,7 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
 
     /* Ensure numA is always larger. */
     if (numA->len < numB->len){
-        num_mul_nat(numAns, numB, numA);
+        num_mul_long(numAns, numB, numA);
         return;
     }
     /* In the event one of the factors is also the product make a copy of it so
@@ -271,7 +271,7 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
 }
 
 /* Karatsuba multiplication. */
-void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
+void num_mul_krt(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i;
     list_t *x0, *x1, *xt, 
@@ -280,7 +280,7 @@ void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
     node_t *aux;
 
     if (numA->len <= THRESHOLD && numB->len <= THRESHOLD)
-        num_mul_nat(numAns, numA, numB);
+        num_mul_long(numAns, numA, numB);
     else {
         x0 = list_init(); x1 = list_init(); xt = list_init(); 
         y0 = list_init(); y1 = list_init(); yt = list_init();
@@ -314,12 +314,12 @@ void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
             aux = aux->next;
         }
 
-        num_mul_kar(z0, x0, y0);
-        num_mul_kar(z2, x1, y1);
+        num_mul_krt(z0, x0, y0);
+        num_mul_krt(z2, x1, y1);
 
         num_add_nat(xt, x1, x0);
         num_add_nat(yt, y1, y0);
-        num_mul_kar(z1, xt, yt);
+        num_mul_krt(z1, xt, yt);
         num_sub_nat(z1, z1, z2);
         num_sub_nat(z1, z1, z0);
 
@@ -350,9 +350,9 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numB->head->item;
 
     /*
-    num_mul_nat(numAns, numA, numB);
+    num_mul_long(numAns, numA, numB);
      */
-    num_mul_kar(numAns, numA, numB);
+    num_mul_krt(numAns, numA, numB);
 
 
     switch (signCount) {
@@ -365,54 +365,60 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     }
 }
 
-void num_div(list_t *numAns, list_t *numA, list_t *numB)
+/* Long division. */
+void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int headDig, quotDig;
+    int i, lenNumA, headDig, quotDig;
     list_t *numRem;
 
+    lenNumA = numA->len;
+
     numRem = list_init();
-    if (numA->head->prev == NULL){
-        numA->len = 0;
-        numA->head = numA->tail->prev;
-    }
-    else
-        numA->head = numA->head->prev;
-    numA->len++; 
-    headDig = numA->head->item;
-    numA->head->item = 0;
+    numA->len = 0;
+    numA->head = numA->tail;
 
     /* DIVISION */
-    list_append(numRem, 0);
-    numRem->head->item = 0;
-    for (quotDig = 0; num_cmp(numA, numRem) != -1; quotDig++){
-        num_add(numRem, numRem, numB);
+    for (i = 0; i < lenNumA; i++){
+        numA->head = numA->head->prev;
+        numA->len++; 
+        headDig = numA->head->item;
+        numA->head->item = 0;
+        list_append(numRem, 0);
+
+        for (quotDig = 0; num_cmp(numA, numRem) != -1; quotDig++){
+            num_add_nat(numRem, numRem, numB);
+        }
+        quotDig--;
+        if (quotDig == 0){
+            list_copy(numRem, numA);
+        }
+        else {
+            num_sub_nat(numRem, numRem, numB);
+            num_sub_nat(numRem, numA, numRem);
+        }
+
+        list_empty(numA);
+        if (numRem->tail->item != 0)
+            list_concat(numA, numRem);
+
+        list_insert(numAns, 0, quotDig);
+
+        numA->head->item = headDig;
+        list_empty(numRem);
     }
-    quotDig--;
-    if (quotDig == 0){
-        list_copy(numRem, numA);
-    }
-    else {
-        num_sub(numRem, numRem, numB);
-        num_sub(numRem, numA, numRem);
-    }
 
-    list_empty(numA);
-    if (numRem->tail->item != 0)
-        list_concat(numA, numRem);
-
-    list_insert(numAns, 0, quotDig);
-
-    /* */
-
-    numA->head->item = headDig;
+    while(numAns->tail->item == 0 && numAns->len > 1)
+        free(list_pop(numAns, numAns->len - 1));
     list_free(numRem);
-
-    if (numA->head->prev != NULL)
-        num_div(numAns, numA, numB);
 }
-    /*
-    if (numA->head->item == 1) printf("-"); list_printrev(*numA, ""); 
-    printf(" q:%i REM ", quotDig); 
-    if (numRem->head->item == 1) printf("-"); list_printrev(*numRem, ""); 
-    puts("");
-    */
+
+void num_div(list_t *numAns, list_t *numA, list_t *numB){
+        num_div_long(numAns, numA, numB);
+}
+
+/*
+   if (numA->head->item == 1) printf("-"); list_printrev(*numA, ""); 
+   printf(" q:%i REM ", quotDig); 
+   if (numRem->head->item == 1) printf("-"); list_printrev(*numRem, ""); 
+   puts("");
+   */
