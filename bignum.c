@@ -270,6 +270,7 @@ void num_mul_nat(list_t *numAns, list_t *numA, list_t *numB)
     list_free(numTmp);
 }
 
+/* Karatsuba multiplication. */
 void num_mul_kar(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i;
@@ -348,7 +349,11 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numA->head->item;
     signCount += numB->head->item;
 
+    /*
     num_mul_nat(numAns, numA, numB);
+     */
+    num_mul_kar(numAns, numA, numB);
+
 
     switch (signCount) {
         case 1: 
@@ -359,3 +364,55 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
             return;
     }
 }
+
+void num_div(list_t *numAns, list_t *numA, list_t *numB)
+{
+    int headDig, quotDig;
+    list_t *numRem;
+
+    numRem = list_init();
+    if (numA->head->prev == NULL){
+        numA->len = 0;
+        numA->head = numA->tail->prev;
+    }
+    else
+        numA->head = numA->head->prev;
+    numA->len++; 
+    headDig = numA->head->item;
+    numA->head->item = 0;
+
+    /* DIVISION */
+    list_append(numRem, 0);
+    numRem->head->item = 0;
+    for (quotDig = 0; num_cmp(numA, numRem) != -1; quotDig++){
+        num_add(numRem, numRem, numB);
+    }
+    quotDig--;
+    if (quotDig == 0){
+        list_copy(numRem, numA);
+    }
+    else {
+        num_sub(numRem, numRem, numB);
+        num_sub(numRem, numA, numRem);
+    }
+
+    list_empty(numA);
+    if (numRem->tail->item != 0)
+        list_concat(numA, numRem);
+
+    list_insert(numAns, 0, quotDig);
+
+    /* */
+
+    numA->head->item = headDig;
+    list_free(numRem);
+
+    if (numA->head->prev != NULL)
+        num_div(numAns, numA, numB);
+}
+    /*
+    if (numA->head->item == 1) printf("-"); list_printrev(*numA, ""); 
+    printf(" q:%i REM ", quotDig); 
+    if (numRem->head->item == 1) printf("-"); list_printrev(*numRem, ""); 
+    puts("");
+    */

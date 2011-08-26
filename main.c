@@ -21,20 +21,24 @@ int main()
     while (1){
         num_read(numN);
         num_read(numM);
-        /*
-           num_mul(numN, numN, numM);
-           */
-        num_mul_kar(numAns, numN, numM);
 
         if (numN->len == 1 && numN->tail->item == 0 && 
                 numM->len == 1 && numM->tail->item == 0)
             break;
 
         /*
+           num_mul(numN, numN, numN);
+           */
+
+        num_div(numAns, numN, numM);
+
+        /*
            if (numN->head->item == 1)
            printf("-");
            list_printrev(*numN, "");
            printf("\n");
+           */
+        /*
            if (numM->head->item == 1)
            printf("-");
            list_printrev(*numM, "");
