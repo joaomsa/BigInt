@@ -350,9 +350,9 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numB->head->item;
 
     /*
-    num_mul_long(numAns, numA, numB);
-     */
     num_mul_krt(numAns, numA, numB);
+     */
+    num_mul_long(numAns, numA, numB);
 
 
     switch (signCount) {
@@ -409,11 +409,33 @@ void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
 
     while(numAns->tail->item == 0 && numAns->len > 1)
         free(list_pop(numAns, numAns->len - 1));
+
     list_free(numRem);
 }
 
 void num_div(list_t *numAns, list_t *numA, list_t *numB){
-        num_div_long(numAns, numA, numB);
+    /* BOth have to be possiteiv */
+    int signCount = 0, signA, signB;
+
+    signCount += numA->head->item;
+    signCount += numB->head->item;
+    signA = numA->head->item;
+    signB = numB->head->item;
+    numA->head->item = 0;
+    numB->head->item = 0;
+
+    num_div_long(numAns, numA, numB);
+
+    numA->head->item = signA;
+    numB->head->item = signB;
+    switch (signCount) {
+        case 1: 
+            numAns->head->item = 1;
+            return;
+        default:
+            numAns->head->item = 0;
+            return;
+    }
 }
 
 /*
