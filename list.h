@@ -51,3 +51,9 @@ void list_reverse(list_t *list);
 /* Print the contents of a list with separator between each item. */
 void list_print(list_t list, const char *separator);
 void list_printrev(list_t list, const char *separator);
+
+/* Appends the list source to destiny. */
+void list_concat(list_t *destiny, list_t *source);
+
+/* Copy the contents of source to destiny. */
+void list_copy(list_t *destiny, list_t *source);

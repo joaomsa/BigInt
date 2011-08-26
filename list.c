@@ -251,3 +251,20 @@ void list_printrev(list_t list, const char *separator)
     }
     printf("%i", aux->item);
 }
+
+void list_concat(list_t *destiny, list_t *source)
+{
+    int i;
+    node_t *aux;
+    aux = source->head->next;
+    for (i = 0; i < source->len; i++){
+        list_append(destiny, aux->item);
+        aux = aux->next;
+    }
+}
+
+void list_copy(list_t *destiny, list_t *source)
+{
+    list_empty(destiny);
+    list_concat(destiny, source);
+}
