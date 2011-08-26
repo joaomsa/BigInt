@@ -105,7 +105,7 @@ void num_add_nat(list_t *numAns, list_t *numA, list_t *numB)
         auxAns = auxAns->next;
     }
 
-    /* Remove trailing numbers. */
+    /* Remove leading zeros. */
     lenNumAns = i + carry;
     while(numAns->len > lenNumAns)
         free(list_pop(numAns, numAns->len - 1));
@@ -149,7 +149,7 @@ void num_sub_nat(list_t *numAns, list_t *numA, list_t *numB)
         auxAns->item = dif;
         auxAns = auxAns->next;
     }
-    /* Remove trailing zeros. */
+    /* Remove leading zeros. */
     lenNumAns = i;
     while(numAns->len > lenNumAns)
         free(list_pop(numAns, numAns->len - 1));
@@ -245,7 +245,7 @@ void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
             auxTmp = auxTmp->next;
         }
 
-        /* Remove trailing zeros. */
+        /* Remove leading zeros. */
         while(numTmp->tail->item == 0 && numTmp->len > 1)
             free(list_pop(numTmp, numTmp->len - 1));
 
@@ -368,57 +368,82 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
 /* Long division. */
 void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int i, lenNumA, headDig, quotDig;
-    list_t *numRem;
+    int i, headDig, quotDig;
+    list_t *numRem, *numAnsTmp, *numATmp;
 
-    lenNumA = numA->len;
-
+    /* Stores remainder throughout division. */
     numRem = list_init();
-    numA->len = 0;
-    numA->head = numA->tail;
 
-    /* DIVISION */
-    for (i = 0; i < lenNumA; i++){
-        numA->head = numA->head->prev;
-        numA->len++; 
-        headDig = numA->head->item;
-        numA->head->item = 0;
+    /* Backup numA. */
+    numATmp = list_init();
+    list_copy(numATmp, numA);
+
+    /* If numAns is either numA or numB. */
+    if (numAns == numA || numAns == numB)
+        numAnsTmp = list_init();
+    else
+        numAnsTmp = numAns;
+
+    /* Prepare to work backwards through list. */
+    numATmp->len = 0;
+    numATmp->head = numATmp->tail;
+
+    /* Long division. */
+    for (i = 0; i < numA->len; i++){
+        /* Get previous most significant digit of numA. */
+        numATmp->head = numATmp->head->prev;
+        numATmp->len++; 
+        headDig = numATmp->head->item;
+        numATmp->head->item = 0;
+
         list_append(numRem, 0);
 
-        for (quotDig = 0; num_cmp(numA, numRem) != -1; quotDig++){
+        /* Find quotient of partial division. */
+        for (quotDig = 0; num_cmp(numATmp, numRem) != -1; quotDig++)
             num_add_nat(numRem, numRem, numB);
-        }
         quotDig--;
+        list_insert(numAnsTmp, 0, quotDig);
+
+        /* Set numRem to actual remainder. */
         if (quotDig == 0){
-            list_copy(numRem, numA);
+            list_copy(numRem, numATmp);
         }
         else {
             num_sub_nat(numRem, numRem, numB);
-            num_sub_nat(numRem, numA, numRem);
+            num_sub_nat(numRem, numATmp, numRem);
         }
 
-        list_empty(numA);
+        /* Prepare for next partial division. */
+        list_empty(numATmp);
         if (numRem->tail->item != 0)
-            list_concat(numA, numRem);
-
-        list_insert(numAns, 0, quotDig);
-
-        numA->head->item = headDig;
+            list_concat(numATmp, numRem);
+        numATmp->head->item = headDig;
         list_empty(numRem);
     }
 
-    while(numAns->tail->item == 0 && numAns->len > 1)
-        free(list_pop(numAns, numAns->len - 1));
+    /* Remove leading zeros from answer. */
+    while(numAnsTmp->tail->item == 0 && numAnsTmp->len > 1)
+        free(list_pop(numAnsTmp, numAnsTmp->len - 1));
 
+    /* Cleanup. */
+    if (numAns == numA || numAns == numB){
+        list_copy(numAns, numAnsTmp);
+        list_free(numAnsTmp);
+    }
+
+    list_free(numATmp);
     list_free(numRem);
 }
 
-void num_div(list_t *numAns, list_t *numA, list_t *numB){
-    /* BOth have to be possiteiv */
+void num_div_brzg();
+
+void num_div(list_t *numAns, list_t *numA, list_t *numB)
+{
     int signCount = 0, signA, signB;
 
     signCount += numA->head->item;
     signCount += numB->head->item;
+    /* Backup signs since num_div_long() needs both numbers to be positive. */
     signA = numA->head->item;
     signB = numB->head->item;
     numA->head->item = 0;
@@ -428,6 +453,8 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB){
 
     numA->head->item = signA;
     numB->head->item = signB;
+
+    /* Set correct sign of answer. */
     switch (signCount) {
         case 1: 
             numAns->head->item = 1;
