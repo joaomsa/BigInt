@@ -20,6 +20,7 @@ list_t* list_init()
     test->tail = test->head;
     test->head->next = NULL;
     test->head->prev = NULL;
+    test->head->item = 0;
     test->len = 0;
     return test;
 }
