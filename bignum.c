@@ -366,13 +366,10 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
 }
 
 /* Long division. */
-void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
+void num_div_long(list_t *numAns, list_t *numRem, list_t *numA, list_t *numB)
 {
     int i, headDig, quotDig;
-    list_t *numRem, *numAnsTmp, *numATmp;
-
-    /* Stores remainder throughout division. */
-    numRem = list_init();
+    list_t *numAnsTmp, *numATmp;
 
     /* Backup numA. */
     numATmp = list_init();
@@ -396,6 +393,8 @@ void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
         headDig = numATmp->head->item;
         numATmp->head->item = 0;
 
+        /* Clear remainder. */
+        list_empty(numRem);
         list_append(numRem, 0);
 
         /* Find quotient of partial division. */
@@ -418,7 +417,6 @@ void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
         if (numRem->tail->item != 0)
             list_concat(numATmp, numRem);
         numATmp->head->item = headDig;
-        list_empty(numRem);
     }
 
     /* Remove leading zeros from answer. */
@@ -432,27 +430,47 @@ void num_div_long(list_t *numAns, list_t *numA, list_t *numB)
     }
 
     list_free(numATmp);
-    list_free(numRem);
 }
 
-void num_div_brzg();
+/*
+void num_div_bz2by1(list_t *numAns, list_t *numRem, list_t *numA, list_t *numB)
+{
+    list_t *x0, *x1, *xt;
+
+    x0 = list_init();
+    x1 = list_init();
+    xt = list_init();
+    
+    x0->head->next
+}
+*/
 
 void num_div(list_t *numAns, list_t *numA, list_t *numB)
 {
     int signCount = 0, signA, signB;
+    list_t *numRem;
+
+    /* Stores remainder throughout division. */
+    numRem = list_init();
 
     signCount += numA->head->item;
     signCount += numB->head->item;
+
     /* Backup signs since num_div_long() needs both numbers to be positive. */
     signA = numA->head->item;
     signB = numB->head->item;
     numA->head->item = 0;
     numB->head->item = 0;
 
-    num_div_long(numAns, numA, numB);
+    num_div_long(numAns, numRem, numA, numB);
 
     numA->head->item = signA;
     numB->head->item = signB;
+
+    list_printrev(*numRem, "");
+    puts("");
+
+    list_free(numRem);
 
     /* Set correct sign of answer. */
     switch (signCount) {
@@ -464,10 +482,3 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB)
             return;
     }
 }
-
-/*
-   if (numA->head->item == 1) printf("-"); list_printrev(*numA, ""); 
-   printf(" q:%i REM ", quotDig); 
-   if (numRem->head->item == 1) printf("-"); list_printrev(*numRem, ""); 
-   puts("");
-   */
