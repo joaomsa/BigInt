@@ -273,43 +273,48 @@ void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
 /* Karatsuba multiplication. */
 void num_mul_krt(list_t *numAns, list_t *numA, list_t *numB)
 {
-    int i;
+    int i, k;
     list_t *x0, *x1, *xt, 
            *y0, *y1, *yt, 
            *z0, *z1, *z2;
     node_t *aux;
 
-    if (numA->len <= THRESHOLD && numB->len <= THRESHOLD)
+    if (numA->len <= THRESHOLD || numB->len <= THRESHOLD)
         num_mul_long(numAns, numA, numB);
     else {
+        if (numA->len > numB->len)
+            k = numB->len / 2;
+        else
+            k = numA->len / 2;
+
         x0 = list_init(); x1 = list_init(); xt = list_init(); 
         y0 = list_init(); y1 = list_init(); yt = list_init();
         z0 = list_init(); z1 = list_init(); z2 = list_init();
 
         aux = numA->head->next;
-        x0->len = THRESHOLD;
+        x0->len = k;
         x0->head->next = aux;
-        for (i = 0; i < THRESHOLD; i++){
+        for (i = 0; i < k; i++){
             x0->tail = aux;
             aux = aux->next;
         }
-        x1->len = numA->len - THRESHOLD;
+        x1->len = numA->len - k;
         x1->head->next = aux;
-        for (i = 0; i < numA->len - THRESHOLD; i++){
+        for (i = 0; i < numA->len - k; i++){
             x1->tail = aux;
             aux = aux->next;
         }
 
         aux = numB->head->next;
-        y0->len = THRESHOLD;
+        y0->len = k;
         y0->head->next = aux;
-        for (i = 0; i < THRESHOLD; i++){
+        for (i = 0; i < k; i++){
             y0->tail = aux;
             aux = aux->next;
         }
-        y1->len = numB->len - THRESHOLD;
+        y1->len = numB->len - k;
         y1->head->next = aux;
-        for (i = 0; i < numB->len - THRESHOLD; i++){
+        for (i = 0; i < numB->len - k; i++){
             y1->tail = aux;
             aux = aux->next;
         }
@@ -324,9 +329,9 @@ void num_mul_krt(list_t *numAns, list_t *numA, list_t *numB)
         num_sub_nat(z1, z1, z0);
 
         /* Multiply by powers of 10. */
-        for (i = 0; i < THRESHOLD; i++)
+        for (i = 0; i < k; i++)
             list_insert(z1, 0, 0);
-        for (i = 0; i < 2 * THRESHOLD; i++)
+        for (i = 0; i < 2 * k; i++)
             list_insert(z2, 0, 0);
 
         num_add_nat(numAns, z0, z1);
@@ -350,9 +355,9 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numB->head->item;
 
     /*
-       num_mul_krt(numAns, numA, numB);
-       */
     num_mul_long(numAns, numA, numB);
+       */
+       num_mul_krt(numAns, numA, numB);
 
 
     switch (signCount) {
