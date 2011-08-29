@@ -48,12 +48,12 @@ int list_swap(list_t *list, int posA, int posB);
 /* Invert the contents of a list inplace. */
 void list_reverse(list_t *list);
 
-/* Print the contents of a list with separator between each item. */
-void list_print(list_t list, const char *separator);
-void list_printrev(list_t list, const char *separator);
-
 /* Appends the list source to destiny. */
 void list_concat(list_t *destiny, list_t *source);
 
 /* Copy the contents of source to destiny. */
 void list_copy(list_t *destiny, list_t *source);
+
+/* Print the contents of a list with separator between each item. */
+void list_fprint(FILE* output, list_t *list, const char *separator);
+void list_fprintrev(FILE* output, list_t *list, const char *separator);

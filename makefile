@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -ansi -g -O0
+CFLAGS=-Wall -Wextra -ansi -g -O3
 EXECUTABLE=bignum
 all: $(EXECUTABLE)
 

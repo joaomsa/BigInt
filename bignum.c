@@ -1,24 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #ifndef BIGNUM_H
 #define BIGNUM_H
 #include "bignum.h"
 #endif
-
-void num_read(list_t *num)
-{
-    int c;
-
-    /* Ignore non numbers */
-    while (!(isdigit((c = getchar()))) && c != '-');
-    if (c == '-')
-        num->head->item = 1;
-    else
-        list_insert(num, 0, c - '0');
-    while (isdigit((c = getchar())))
-        list_insert(num, 0, c - '0');
-}
 
 int num_cmp(list_t *numA, list_t *numB)
 {
@@ -149,6 +134,7 @@ void num_sub_nat(list_t *numAns, list_t *numA, list_t *numB)
         auxAns->item = dif;
         auxAns = auxAns->next;
     }
+
     /* Remove leading zeros. */
     lenNumAns = i;
     while(numAns->len > lenNumAns)
@@ -270,7 +256,7 @@ void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
     list_free(numTmp);
 }
 
-/* Karatsuba multiplication. */
+/* Karatsuba multiplication. See documentation for explanation. */
 void num_mul_krt(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, k;
@@ -355,9 +341,9 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numB->head->item;
 
     /*
-    num_mul_long(numAns, numA, numB);
+       num_mul_long(numAns, numA, numB);
        */
-       num_mul_krt(numAns, numA, numB);
+    num_mul_krt(numAns, numA, numB);
 
 
     switch (signCount) {
@@ -441,8 +427,8 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB)
 {
     int signCount = 0, signA, signB;
     list_t *numRem;
-    
-    
+
+
     if (numB->tail->item == 0 && numB->len == 1){
         fprintf(stderr, "Dividing by 0\n");
         abort();
@@ -479,6 +465,7 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB)
     }
 }
 
+/* Factorial. */
 void num_fct(list_t *numAns, list_t *numA)
 {
     list_t *num1, *numATmp;

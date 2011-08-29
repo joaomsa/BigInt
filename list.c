@@ -5,6 +5,7 @@
 #include "list.h"
 #endif
 
+/* Check whether memory allocation fails. */
 #define CHKMLC(x) \
     if ((x) == NULL){ \
         fprintf(stderr, "Malloc Failed\n"); \
@@ -195,7 +196,6 @@ int list_swap(list_t *list, int posA, int posB)
     auxTmpB->next = auxA;
     auxA->prev = auxTmpB;
     auxB->prev = auxTmpA;
-
     auxTmpA = auxA->next;
     auxTmpB = auxB->next;
     auxTmpA->prev = auxB;
@@ -225,34 +225,6 @@ void list_reverse(list_t *list)
     list->head = aux;
 }
 
-void list_print(list_t list, const char *separator)
-{
-    int i;
-    node_t *aux = list.head->next;
-
-    if (list.len == 0)
-        return;
-    for (i = 0; i < list.len - 1; i++){
-        printf("%i%s", aux->item, separator);
-        aux = aux->next;
-    }
-    printf("%i", aux->item);
-}
-
-void list_printrev(list_t list, const char *separator)
-{
-    int i;
-    node_t *aux = list.tail;
-
-    if (list.len == 0)
-        return;
-    for (i = 0; i < list.len - 1; i++){
-        printf("%i%s", aux->item, separator);
-        aux = aux->prev;
-    }
-    printf("%i", aux->item);
-}
-
 void list_concat(list_t *destiny, list_t *source)
 {
     int i;
@@ -266,8 +238,37 @@ void list_concat(list_t *destiny, list_t *source)
 
 void list_copy(list_t *destiny, list_t *source)
 {
+    /* No point in copying a list to itself. */
     if (destiny != source){
         list_empty(destiny);
         list_concat(destiny, source);
     }
+}
+
+void list_fprint(FILE* output, list_t *list, const char *separator)
+{
+    int i;
+    node_t *aux = list->head->next;
+
+    if (list->len == 0)
+        return;
+    for (i = 0; i < list->len - 1; i++){
+        fprintf(output, "%i%s", aux->item, separator);
+        aux = aux->next;
+    }
+    fprintf(output, "%i", aux->item);
+}
+
+void list_fprintrev(FILE* output, list_t *list, const char *separator)
+{
+    int i;
+    node_t *aux = list->tail;
+
+    if (list->len == 0)
+        return;
+    for (i = 0; i < list->len - 1; i++){
+        fprintf(output, "%i%s", aux->item, separator);
+        aux = aux->prev;
+    }
+    fprintf(output, "%i", aux->item);
 }
