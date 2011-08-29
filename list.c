@@ -266,6 +266,8 @@ void list_concat(list_t *destiny, list_t *source)
 
 void list_copy(list_t *destiny, list_t *source)
 {
-    list_empty(destiny);
-    list_concat(destiny, source);
+    if (destiny != source){
+        list_empty(destiny);
+        list_concat(destiny, source);
+    }
 }

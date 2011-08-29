@@ -207,7 +207,7 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB)
         numB->head->item = signB;
 }
 
-/* Long multiplication. */
+/* Long multiplication. */ 
 void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, j, product;
@@ -350,8 +350,8 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numB->head->item;
 
     /*
-    num_mul_krt(numAns, numA, numB);
-     */
+       num_mul_krt(numAns, numA, numB);
+       */
     num_mul_long(numAns, numA, numB);
 
 
@@ -432,23 +432,17 @@ void num_div_long(list_t *numAns, list_t *numRem, list_t *numA, list_t *numB)
     list_free(numATmp);
 }
 
-/*
-void num_div_bz2by1(list_t *numAns, list_t *numRem, list_t *numA, list_t *numB)
-{
-    list_t *x0, *x1, *xt;
-
-    x0 = list_init();
-    x1 = list_init();
-    xt = list_init();
-    
-    x0->head->next
-}
-*/
-
 void num_div(list_t *numAns, list_t *numA, list_t *numB)
 {
     int signCount = 0, signA, signB;
     list_t *numRem;
+    
+    
+    if (numB->tail->item == 0 && numB->len == 1){
+        fprintf(stderr, "Dividing by 0\n");
+        abort();
+    }
+
 
     /* Stores remainder throughout division. */
     numRem = list_init();
@@ -467,9 +461,6 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB)
     numA->head->item = signA;
     numB->head->item = signB;
 
-    list_printrev(*numRem, "");
-    puts("");
-
     list_free(numRem);
 
     /* Set correct sign of answer. */
@@ -481,4 +472,35 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB)
             numAns->head->item = 0;
             return;
     }
+}
+
+void num_fct(list_t *numAns, list_t *numA)
+{
+    list_t *num1, *numATmp;
+
+    if (numA->head->item == 1){
+        fprintf(stderr, "Factorial of negative number\n");
+        abort();
+    }
+
+    num1 = list_init();
+    list_append(num1, 1);
+
+    numATmp = list_init();
+    list_copy(numATmp, numA);
+
+    /* 0! = 1 */
+    if (numA->tail->item == 0 && numA->len == 1){
+        list_empty(numAns);
+        list_append(numAns, 1);
+    } else {
+        list_copy(numAns, numA);
+        while (num_cmp(numATmp, num1) == 1){
+            num_sub_nat(numATmp, numATmp, num1);
+            num_mul(numAns, numAns, numATmp);
+        }
+    }
+
+    list_free(num1);
+    list_free(numATmp);
 }

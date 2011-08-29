@@ -18,3 +18,5 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB);
 void num_mul(list_t *numAns, list_t *numA, list_t *numB);
 
 void num_div(list_t *numAns, list_t *numA, list_t *numB);
+
+void num_fct(list_t *numAns, list_t *numA);
