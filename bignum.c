@@ -150,10 +150,10 @@ void num_add(list_t *numAns, list_t *numA, list_t *numB)
     signCount += numA->head->item;
     signCount += numB->head->item;
     switch (signCount) {
-        case 0: 
+        case 0:
             num_add_nat(numAns, numA, numB);
             return;
-        case 1: 
+        case 1:
             signA = numA->head->item;
             signB = numB->head->item;
             numA->head->item = 0;
@@ -173,7 +173,7 @@ void num_add(list_t *numAns, list_t *numA, list_t *numB)
             if (numAns != numB)
                 numB->head->item = signB;
             return;
-        case 2: 
+        case 2:
             num_add_nat(numAns, numA, numB);
             numAns->head->item = 1;
             return;
@@ -193,7 +193,7 @@ void num_sub(list_t *numAns, list_t *numA, list_t *numB)
         numB->head->item = signB;
 }
 
-/* Long multiplication. */ 
+/* Long multiplication. */
 void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, j, product;
@@ -260,8 +260,8 @@ void num_mul_long(list_t *numAns, list_t *numA, list_t *numB)
 void num_mul_krt(list_t *numAns, list_t *numA, list_t *numB)
 {
     int i, k;
-    list_t *x0, *x1, *xt, 
-           *y0, *y1, *yt, 
+    list_t *x0, *x1, *xt,
+           *y0, *y1, *yt,
            *z0, *z1, *z2;
     node_t *aux;
 
@@ -273,7 +273,7 @@ void num_mul_krt(list_t *numAns, list_t *numA, list_t *numB)
         else
             k = numA->len / 2;
 
-        x0 = list_init(); x1 = list_init(); xt = list_init(); 
+        x0 = list_init(); x1 = list_init(); xt = list_init();
         y0 = list_init(); y1 = list_init(); yt = list_init();
         z0 = list_init(); z1 = list_init(); z2 = list_init();
 
@@ -347,7 +347,7 @@ void num_mul(list_t *numAns, list_t *numA, list_t *numB)
 
 
     switch (signCount) {
-        case 1: 
+        case 1:
             numAns->head->item = 1;
             return;
         default:
@@ -380,7 +380,7 @@ void num_div_long(list_t *numAns, list_t *numRem, list_t *numA, list_t *numB)
     for (i = 0; i < numA->len; i++){
         /* Get previous most significant digit of numA. */
         numATmp->head = numATmp->head->prev;
-        numATmp->len++; 
+        numATmp->len++;
         headDig = numATmp->head->item;
         numATmp->head->item = 0;
 
@@ -456,7 +456,7 @@ void num_div(list_t *numAns, list_t *numA, list_t *numB)
 
     /* Set correct sign of answer. */
     switch (signCount) {
-        case 1: 
+        case 1:
             numAns->head->item = 1;
             return;
         default:

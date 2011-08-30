@@ -2,7 +2,7 @@
 #define LIST_H
 #include "list.h"
 #endif
-/* Threshold number of digits to start using Karatsuba multiplication instead 
+/* Threshold number of digits to start using Karatsuba multiplication instead
  * of long multiplicaiton. */
 #define THRESHOLD 2
 

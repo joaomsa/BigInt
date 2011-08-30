@@ -188,7 +188,7 @@ int list_swap(list_t *list, int posA, int posB)
     auxB = auxA;
     for (; i < posB; i++)
         auxB = auxB->next;
-    
+
     /* Drowning in pointers. */
     auxTmpA = auxA->prev;
     auxTmpB = auxB->prev;
