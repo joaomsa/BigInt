@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -ansi -g -O3
-EXECUTABLE=bignum
+EXECUTABLE=tp0
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): main.o bignum.o list.o
