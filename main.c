@@ -48,12 +48,11 @@ int main(int argc, char *argv[])
         readnum(numM, input);
 
         /* Stop when N = 0 and M = 0. */
-        if (numN->len == 1 && numN->tail->item == 0 && 
+        if (numN->len == 1 && numN->tail->item == 0 &&
                 numM->len == 1 && numM->tail->item == 0)
             break;
 
         combination(numAns, numN, numM);
-        printf("%i\n", line);
 
         /* Add odd lines and subtract even lines. */
         if (line % 2 == 1)
@@ -75,6 +74,7 @@ int main(int argc, char *argv[])
         if (numAcc->head->item == 1)
             fprintf(output, "-");
         list_fprintrev(output, numAcc, "");
+        fprintf(output, "\n");
     }
 
     /* Clean up. */
@@ -105,40 +105,52 @@ void readnum(list_t *num, FILE *input)
 
 void combination(list_t *numAns, list_t *numN, list_t *numM)
 {
-    list_t *numA, *numB, *numC, *num1;
-
-    numA = list_init();
-    numB = list_init();
-    numC = list_init();
-    num1 = list_init();
-    list_append(num1, 1);
+    list_t *numCancel, *numTmp, *numDvisor, *numDvdend, *num1;
 
     if (numN->head->item == 1){
         fprintf(stderr, "Factorial of negative number\n");
         abort();
     }
 
+    numCancel = list_init();
+    numTmp = list_init();
+    numDvisor = list_init();
+    numDvdend = list_init();
+    num1 = list_init();
+
     /* Eliminate unnecessary multiplications. */
-    num_sub(numA, numN, numM);
-    num_add(numA, numA, num1);
-    if (numN->tail->item == 0 && numN->len == 1){
-        list_empty(numB);
-        list_append(numB, 1);
+    num_sub(numCancel, numN, numM);
+    if (num_cmp(numM, numCancel) >= 0){
+        list_copy(numTmp, numM);
+        list_copy(numDvisor, numCancel);
     } else {
-        list_copy(numC, numN);
-        list_copy(numB, numN);
-        while (num_cmp(numC, numA) == 1){
-            num_sub(numC, numC, num1);
-            num_mul(numB, numB, numC);
+        list_copy(numTmp, numCancel);
+        list_copy(numDvisor, numM);
+    }
+
+    list_append(num1, 1);
+
+    num_add(numTmp, numTmp, num1);
+    list_copy(numDvdend, numTmp);
+
+    /* 0! = 1. */
+    if ((numM->tail->item == 0 && numM->len == 1) ||
+            (numCancel->tail->item == 0 && numCancel->len == 1)){
+        list_copy(numDvdend, num1);
+    } else {
+        while(num_cmp(numN, numTmp) == 1){
+            num_add(numTmp, numTmp, num1);
+            num_mul(numDvdend, numDvdend, numTmp);
         }
     }
 
     /* Final division. */
-    num_fct(numC, numM);
-    num_div(numAns, numB, numC);
+    num_fct(numDvisor, numDvisor);
+    num_div(numAns, numDvdend, numDvisor);
 
-    list_free(numA);
-    list_free(numB);
-    list_free(numC);
+    list_free(numCancel);
+    list_free(numTmp);
+    list_free(numDvisor);
+    list_free(numDvdend);
     list_free(num1);
 }
