@@ -74,7 +74,6 @@ int main(int argc, char *argv[])
         if (numAcc->head->item == 1)
             fprintf(output, "-");
         list_fprintrev(output, numAcc, "");
-        fprintf(output, "\n");
     }
 
     /* Clean up. */
